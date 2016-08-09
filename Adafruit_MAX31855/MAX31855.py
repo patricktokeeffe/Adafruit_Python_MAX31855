@@ -100,8 +100,12 @@ class MAX31855(object):
         """Return the NIST-linearized thermocouple temperature value in degrees celsius.
         See https://learn.adafruit.com/calibrating-sensors/maxim-31855-linearization for more info.
         """
+        # Basic error check
+        probeTempC = self.readTempC()
+        if math.isnan(probeTempC):
+            return float('NAN')
         # MAX31855 thermocouple voltage reading in mV
-        thermocoupleVoltage = (self.readTempC() - self.readInternalC()) * 0.041276
+        thermocoupleVoltage = (probeTempC - self.readInternalC()) * 0.041276
         # MAX31855 cold junction voltage reading in mV
         coldJunctionTemperature = self.readInternalC()
         coldJunctionVoltage = (-0.176004136860E-01 +
@@ -154,7 +158,7 @@ class MAX31855(object):
             b9 = 0.000000E+00
         else:
             # TODO: handle error - out of range
-            return 0
+            return float('NAN')
         return (b0 +
             b1 * voltageSum +
             b2 * pow(voltageSum, 2.0) +
